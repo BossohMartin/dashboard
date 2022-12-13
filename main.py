@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 
 from PIL import Image
 
-#import json
-#from urllib.request import urlopen
+import json
+from urllib.request import urlopen
 
 
 from lime.lime_tabular import LimeTabularExplainer
@@ -348,14 +348,19 @@ def main():
         width = 1440
         height = 948
         n_features = 15
-                
         
-        prediction_id, proba_id = predict_proba(id_client)
+        #### appel de l'APIpredict ####
         
+        url = "http://ec2-44-202-116-70.compute-1.amazonaws.com:8000/predict/" + id_client  
+
         with st.spinner('Chargement du score du client...'):
-            
-            score_list = get_client_score(id_client,prediction_id,proba_id)
+            json_url = urlopen(url)
+        
+            prediction_data = json.loads(json_url.read())
+         
+            score_list = get_client_score(id_client,prediction_data["prediction"],prediction_data["proba"])
             X = score_list[score_list['SK_ID_CURR'] == int(id_client)]
+        
     
             df2['Age'] = (df2['DAYS_BIRTH'].abs()/365).astype("int32")
             
@@ -400,7 +405,8 @@ def main():
             st.markdown("<h3 style='text-align: center; color: black;'>Explication globale de la prédiction</h3>", unsafe_allow_html=True)
             features_importances = plot_features_importances(df, n_features,width,height)
         
-        labels = prediction_id
+        #labels = prediction_id
+        labels = prediction_data['prediction']
         with col2:
             st.markdown("<h3 style='text-align: center; color: black;'>Explication locale de la prédiction</h3>", unsafe_allow_html=True)
             exp = get_local_interpretation(id_client, df) #modelname ,features_importances,labels)
