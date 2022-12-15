@@ -220,24 +220,6 @@ def main():
         
         return True
     
-    
-    def predict_proba(ID_client):
-        model = pickle.load(open("LGBMClassifier.pkl",'rb'))
-        
-        data = pd.read_csv('data_train_1.csv')
-        data= data.loc[:, ~data.columns.str.contains('^Unnamed')]
-        #data.drop(['Unnamed: 0'],axis=1,inplace=True)
-       
-        X = data[data['SK_ID_CURR'] == int(ID_client)]
-        #data.drop(['TARGET'],axis=1,inplace=True)
-        X.drop(['TARGET'],axis=1,inplace=True)
-
-
-        prediction = int(model.predict(X)[0])
-        proba = model.predict_proba(X)[0][prediction]
-        
-        return prediction, proba
-    
     #@st.cache
     def get_client_score(ID_client,prediction,proba):
         
